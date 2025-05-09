@@ -15,3 +15,11 @@ signInWithPopup(auth, provider).then(result => {
 });
 
 // Logika untuk menambahkan pertanyaan, upload gambar, dll.
+
+document.body.innerHTML += `
+  <div style="margin-top:20px; padding:10px; border:1px solid #ccc;">
+    <h2>✅ Firebase Tersambung</h2>
+    <p>Login berhasil! Silakan lanjutkan mengisi pertanyaan atau upload gambar.</p>
+  </div>
+`;
+
