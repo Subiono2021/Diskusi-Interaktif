@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Diskusi Interaktif (Simulasi Peran)</title>
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      background: #f0f0f0;
+    }
+    h1 { color: #333; }
+    input[type="text"], textarea {
+      padding: 10px;
+      font-size: 16px;
+      width: 70%;
+    }
+    button {
+      padding: 8px 12px;
+      margin-left: 5px;
+      font-size: 14px;
+      cursor: pointer;
+      border: none;
+      border-radius: 4px;
+    }
+    .btn-add { background: #4CAF50; color: white; }
+    .btn-edit { background: #2196F3; color: white; }
+    .btn-delete { background: #f44336; color: white; }
+    .btn-answer { background: #6a1b9a; color: white; }
+    li {
+      margin-bottom: 20px;
+      background: #fff;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+    .preview { font-style: italic; margin: 10px 0; color: #555; }
+    .jawaban-container textarea { width: 100%; margin-top: 5px; }
+    .jawaban-output { margin-top: 5px; padding: 5px; background: #eef; border-radius: 5px; }
+    .action-buttons { margin-top: 5px; }
+  </style>
+
+</head>
+<body>
+
+  <h1>Diskusi Interaktif (Dengan Simulasi Peran)</h1>
+  <blockquote align="justify">Gunakan media ini untuk menuliskan sesuatu yang <b>pantas</b>
+     sesuai <b>nilai-nilai kepatutan</b> dan <b>bermanfaat</b> untuk menambah ilmu, 
+     khususnya tentang <b>matematika</b>!</blockquote>
+  <form id="formPertanyaan">
+    <input type="text" id="pertanyaanInput" placeholder="Tulis pertanyaan...">
+    <button class="btn-add" type="submit">Tambah Pertanyaan</button>
+    <div class="preview" id="previewPertanyaan"></div>
+  </form>
+
+  <ul id="daftarPertanyaan"></ul>
+
+  <script>
+    const isAdmin = confirm("Apakah Anda pengelola? Klik OK jika ya.");
+
+    const form = document.getElementById('formPertanyaan');
+    const input = document.getElementById('pertanyaanInput');
+    const preview = document.getElementById('previewPertanyaan');
+    const list = document.getElementById('daftarPertanyaan');
+
+    input.addEventListener('input', () => {
+      preview.innerHTML = input.value;
+      MathJax.typesetPromise([preview]);
+    });
+
+    form.addEventListener('submit', function(event) {
+      event.preventDefault();
+      const pertanyaan = input.value.trim();
+      if (pertanyaan) {
+        tambahPertanyaan(pertanyaan);
+        input.value = '';
+        preview.innerHTML = '';
+        input.focus();
+      }
+    });
+
+    function tambahPertanyaan(teks) {
+      const item = document.createElement('li');
+
+      const qDiv = document.createElement('div');
+      qDiv.innerHTML = teks;
+
+      item.appendChild(qDiv);
+
+      // Jika admin, tampilkan kontrol
+      if (isAdmin) {
+        const actionDiv = document.createElement('div');
+        actionDiv.className = 'action-buttons';
+
+        const btnEdit = document.createElement('button');
+        btnEdit.textContent = 'Edit';
+        btnEdit.className = 'btn-edit';
+
+        const btnDelete = document.createElement('button');
+        btnDelete.textContent = 'Hapus';
+        btnDelete.className = 'btn-delete';
+
+        btnEdit.addEventListener('click', () => {
+          const baru = prompt('Edit pertanyaan:', teks);
+          if (baru !== null && baru.trim() !== '') {
+            teks = baru.trim();
+            qDiv.innerHTML = teks;
+            MathJax.typesetPromise([qDiv]);
+          }
+        });
+
+        btnDelete.addEventListener('click', () => {
+          if (confirm('Hapus pertanyaan ini?')) {
+            item.remove();
+          }
+        });
+
+        actionDiv.appendChild(btnEdit);
+        actionDiv.appendChild(btnDelete);
+        item.appendChild(actionDiv);
+
+        // Jawaban
+        const jawabanContainer = document.createElement('div');
+        jawabanContainer.className = 'jawaban-container';
+
+        const textarea = document.createElement('textarea');
+        textarea.rows = 2;
+        textarea.placeholder = 'Tulis jawaban...';
+
+        const btnJawab = document.createElement('button');
+        btnJawab.textContent = 'Tambah Jawaban';
+        btnJawab.className = 'btn-answer';
+
+        const jawabanOutput = document.createElement('div');
+        jawabanOutput.className = 'jawaban-output';
+
+        const jawabanButtons = document.createElement('div');
+        jawabanButtons.className = 'action-buttons';
+
+        const btnEditJawaban = document.createElement('button');
+        btnEditJawaban.textContent = 'Edit Jawaban';
+        btnEditJawaban.className = 'btn-edit';
+
+        const btnDeleteJawaban = document.createElement('button');
+        btnDeleteJawaban.textContent = 'Hapus Jawaban';
+        btnDeleteJawaban.className = 'btn-delete';
+
+        btnJawab.addEventListener('click', () => {
+          const jawab = textarea.value.trim();
+          if (jawab) {
+            jawabanOutput.innerHTML = jawab;
+            MathJax.typesetPromise([jawabanOutput]);
+            textarea.value = '';
+          }
+        });
+
+        btnEditJawaban.addEventListener('click', () => {
+          const baru = prompt('Edit jawaban:', jawabanOutput.innerText);
+          if (baru !== null && baru.trim() !== '') {
+            jawabanOutput.innerHTML = baru.trim();
+            MathJax.typesetPromise([jawabanOutput]);
+          }
+        });
+
+        btnDeleteJawaban.addEventListener('click', () => {
+          if (confirm('Hapus jawaban ini?')) {
+            jawabanOutput.innerHTML = '';
+          }
+        });
+
+        jawabanButtons.appendChild(btnEditJawaban);
+        jawabanButtons.appendChild(btnDeleteJawaban);
+
+        jawabanContainer.appendChild(textarea);
+        jawabanContainer.appendChild(btnJawab);
+        jawabanContainer.appendChild(jawabanOutput);
+        jawabanContainer.appendChild(jawabanButtons);
+
+        item.appendChild(jawabanContainer);
+      }
+
+      list.appendChild(item);
+      MathJax.typesetPromise([item]);
+    }
+  </script>
+
+<script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-analytics.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  const firebaseConfig = {
+    apiKey: "AIzaSyBnog_MI1Jeg4Ox8lPH1h_mnZPpDe6sXxs",
+    authDomain: "diskusi-ai.firebaseapp.com",
+    projectId: "diskusi-ai",
+    storageBucket: "diskusi-ai.firebasestorage.app",
+    messagingSenderId: "449719312515",
+    appId: "1:449719312515:web:bb6de9e1a8569169a43bb6",
+    measurementId: "G-DKBEK7KQQG"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+</script>
+
+</body>
+</html>
